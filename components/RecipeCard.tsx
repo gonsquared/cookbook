@@ -47,11 +47,8 @@ const RecipeCard: React.FC<RecipeCardProps> = ({
               position: 'absolute',
               top: 8,
               right: 8,
-              backgroundColor: 'white',
               color: 'gold',
-              borderRadius: '50%',
               p: 0.5,
-              boxShadow: 1,
             }}
           >
             {isFavorite ? <Star /> : <StarBorder />}
