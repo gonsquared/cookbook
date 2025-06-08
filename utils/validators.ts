@@ -10,13 +10,12 @@ export const recipeSchema = z.object({
   description: z.string().min(1, 'Description is required'),
   ingredients: z.string().min(1, 'Ingredients are required'),
   instructions: z.string().min(1, 'Instructions are required'),
-  image: z.union([
-    z
-      .custom<File>((file) => isFile(file) && file.size > 0, {
-        message: 'Image is required',
-      }),
-    z
-      .string()
-      .min(1, 'Image filename is required'),
-  ]),
+  image: z.any().refine(
+    (file) =>
+      (typeof file === 'string' && file.length > 0) ||
+      (typeof File !== 'undefined' && file instanceof FileList && file.length > 0),
+    {
+      message: 'Image is required',
+    }
+  )
 });

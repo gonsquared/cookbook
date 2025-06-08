@@ -1,30 +1,27 @@
 import { createSlice, PayloadAction, createAsyncThunk } from '@reduxjs/toolkit';
-import { Recipe } from '../types/Recipe'
+import { Recipe } from '../types/Recipe';
 
 const initialState: Recipe[] = [];
 
 export const addRecipe = createAsyncThunk(
   'recipe/add',
-  async (newRecipe: Recipe) => {
-    return newRecipe;
-  }
+  async (newRecipe: Recipe) => newRecipe
 );
 
 const recipeSlice = createSlice({
   name: 'recipe',
   initialState,
   reducers: {
-    deleteRecipe(state, action: PayloadAction<string>) {
-      return state.filter(recipe => recipe.id !== action.payload);
+    loadInitialData: (state, action: PayloadAction<Recipe[]>) => {
+      return [...action.payload];
     },
-    updateRecipe(state, action: PayloadAction<Recipe>) {
-      const index = state.findIndex(r => r.id === action.payload.id);
+    deleteRecipe: (state, action: PayloadAction<string>) =>
+      state.filter((r) => r.id !== action.payload),
+
+    updateRecipe: (state, action: PayloadAction<Recipe>) => {
+      const index = state.findIndex((r) => r.id === action.payload.id);
       if (index !== -1) state[index] = action.payload;
-    },
-    toggleFavorite(state, action: PayloadAction<string>) {
-      const recipe = state.find(r => r.id === action.payload);
-      if (recipe) recipe.isFavorite = !recipe.isFavorite;
-    },
+    }
   },
   extraReducers: (builder) => {
     builder.addCase(addRecipe.fulfilled, (state, action) => {
@@ -33,5 +30,10 @@ const recipeSlice = createSlice({
   },
 });
 
-export const { deleteRecipe, updateRecipe, toggleFavorite } = recipeSlice.actions;
+export const {
+  loadInitialData,
+  deleteRecipe,
+  updateRecipe,
+} = recipeSlice.actions;
+
 export default recipeSlice.reducer;

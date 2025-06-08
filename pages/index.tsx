@@ -1,5 +1,7 @@
 import React, { ChangeEvent, useEffect, useState } from "react";
 import { useRouter } from "next/router";
+import { useSelector } from "react-redux";
+import { RootState } from "@/store";
 import {
   Box,
   CardMedia,
@@ -20,22 +22,17 @@ import {
 } from "@mui/material";
 import RecipeCard from "@/components/RecipeCard";
 import { Recipe } from "@/types/Recipe";
-import { recipesData } from "@/data/recipes";
 import NoRecords from "@/components/NoRecords";
 import AddCircle from "@mui/icons-material/AddCircle";
 
 const HomePage = () => {
   const router = useRouter();
-  const [data, setData] = useState<Recipe[]>([]);
+  const recipes = useSelector((state: RootState) => state.recipe);
 
   const [isFavorite, setIsFavorite] = useState({
     yes: false,
     no: false
   });
-
-  useEffect(() => {
-    setData(recipesData)
-  }, []);
 
   const handleSortChange = () => {
     //sort
@@ -148,8 +145,8 @@ const HomePage = () => {
           </Tooltip>
         </Box>
         <Box sx={{ position: "relative", top: "-3rem", }}>
-          {data.length > 0 ? (
-            data.map((recipe: Recipe, index) => (
+          {recipes.length > 0 ? (
+            recipes.map((recipe: Recipe, index) => (
               <Box
                 key={recipe.title}
                 sx={{ p: 1, mb: 1 }}
@@ -162,7 +159,7 @@ const HomePage = () => {
                   date={recipe.dateAdded}
                   isFavorite={recipe.isFavorite}
                 />
-                {index !== data.length - 1 && <Divider sx={{ mt: 3 }} /> }
+                {index !== recipes.length - 1 && <Divider sx={{ mt: 3 }} /> }
               </Box>
             ))
           ) : (

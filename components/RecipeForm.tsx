@@ -8,13 +8,17 @@ import {
   Typography,
   Paper,
 } from '@mui/material';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import ArrowBackIos from '@mui/icons-material/ArrowBackIos';
 import ImageIcon from '@mui/icons-material/Image';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { recipeSchema } from '@/utils/validators';
 import { Recipe } from '@/types/Recipe';
+import { useRouter } from 'next/router';
+import { useAppDispatch } from '@/store/hooks';
+import { addRecipe, updateRecipe } from '@/store/recipeSlice';
+import { v4 as uuidv4 } from 'uuid';
 
 type RecipeFormValues = z.infer<typeof recipeSchema>;
 
@@ -24,6 +28,9 @@ interface RecipeFormProps {
 }
 
 const RecipeForm: React.FC<RecipeFormProps> = ({ isEdit = false, data }) => {
+  const router = useRouter();
+  const dispatch = useAppDispatch();
+
   const {
     register,
     handleSubmit,
@@ -31,44 +38,79 @@ const RecipeForm: React.FC<RecipeFormProps> = ({ isEdit = false, data }) => {
     formState: { errors },
   } = useForm<RecipeFormValues>({
     resolver: zodResolver(recipeSchema),
-    defaultValues: isEdit && data ? data : {}
+    defaultValues: isEdit && data ? data : {},
   });
 
   const imageFile = watch('image');
 
-  const onSubmit = (values: RecipeFormValues) => {
-    const formData = {
-      ...values,
-      imageName: values.title.replace(/\s+/g, '_'),
-    };
-    console.log('Form submitted:', formData);
+  const onSubmit = async (values: RecipeFormValues) => {
+    const formData = new FormData();
+    const file = values.image instanceof FileList ? values.image[0] : undefined;
+
+    if (file) {
+      formData.append('image', file);
+    } else {
+      // Optional: handle the case where no image was uploaded
+      console.error('No image file selected');
+    }
+    formData.append('name', values.name);
+    formData.append('email', values.email);
+    formData.append('title', values.title);
+    formData.append('description', values.description);
+    formData.append('ingredients', values.ingredients);
+    formData.append('instructions', values.instructions);
+  
+    if (values.image instanceof File) {
+      formData.append('image', values.image);
+    }
+  
+    try {
+      const res = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
+  
+      const result = await res.json();
+  
+      if (!res.ok) {
+        throw new Error(result.message || 'Failed to upload recipe');
+      }
+  
+      // Dispatch to Redux
+      const newRecipe: Recipe = {
+        id: result.id, // e.g. generated in backend or use uuid
+        name: values.name,
+        email: values.email,
+        title: values.title,
+        description: values.description,
+        ingredients: values.ingredients,
+        instructions: values.instructions,
+        image: result.filename, // returned from API
+        dateAdded: new Date().toDateString(),
+        isFavorite: false,
+      };
+  
+      dispatch(addRecipe(newRecipe));
+      router.push('/');
+    } catch (error) {
+      console.error('Error submitting form:', error);
+    }
   };
+  
 
   return (
     <Box sx={{ minHeight: '100vh', bgcolor: '#f0f0f0', p: 2 }}>
-      <Box
-        sx={{
-          display: 'flex',
-          alignItems: 'center',
-          mb: 2,
-          bgcolor: '#3f51b5',
-          color: 'white',
-          px: 2,
-          py: 1,
-          borderRadius: 1,
-        }}
-      >
-        <IconButton color="inherit">
-          <ArrowBackIcon />
-        </IconButton>
-        <Typography variant="body1" sx={{ ml: 1 }}>
-          Back
-        </Typography>
-      </Box>
-
       <form onSubmit={handleSubmit(onSubmit)} noValidate>
         <Grid container spacing={2}>
-          <Grid size={12}>
+          <Grid size={6}>
+            <Box sx={{ display: 'flex', alignItems: 'center', mb: 2, px: 2, py: 1 }}>
+              <IconButton color="inherit" onClick={() => router.push('/')}>
+                <ArrowBackIos />
+              </IconButton>
+              <Typography variant="body1" sx={{ ml: 1 }}>
+                Back
+              </Typography>
+            </Box>
             <Paper
               elevation={1}
               sx={{
@@ -100,16 +142,20 @@ const RecipeForm: React.FC<RecipeFormProps> = ({ isEdit = false, data }) => {
             </Paper>
 
             <Box mt={2}>
-              <input type="file" accept="image/*" {...register('image')} />
-              {errors.image && (
-                <Typography color="error" variant="body2">
-                  {errors.image.message}
-                </Typography>
-              )}
+              <input
+                type="file"
+                accept="image/*"
+                {...register('image', {
+                  validate: (value) => {
+                    if (value instanceof FileList && value.length > 0) return true;
+                    return 'Image is required';
+                  },
+                })}
+              />
             </Box>
           </Grid>
 
-          <Grid size={12}>
+          <Grid size={6}>
             <Grid container spacing={2}>
               <Grid size={12}>
                 <TextField
@@ -136,9 +182,7 @@ const RecipeForm: React.FC<RecipeFormProps> = ({ isEdit = false, data }) => {
                   {...register('title')}
                   error={!!errors.title}
                   helperText={errors.title?.message}
-                  InputProps={{
-                    readOnly: isEdit,
-                  }}
+                  InputProps={{ readOnly: isEdit }}
                 />
               </Grid>
               <Grid size={12}>
@@ -174,7 +218,7 @@ const RecipeForm: React.FC<RecipeFormProps> = ({ isEdit = false, data }) => {
                   helperText={errors.instructions?.message}
                 />
               </Grid>
-              <Grid size={12} sx={{ textAlign: 'right' }}>
+              <Grid size={12} sx={{ textAlign: "right" }}>
                 <Button variant="contained" color="primary" type="submit">
                   {isEdit ? 'Update' : 'Save'}
                 </Button>

@@ -1,9 +1,20 @@
-import Layout from '@/components/Layout';
-import '@/styles/globals.css';
 import type { AppProps } from 'next/app';
 import Head from 'next/head';
-import {store} from '../store';
+import Layout from '@/components/Layout';
+import '@/styles/globals.css';
 import { Provider } from 'react-redux';
+import { store } from '@/store';
+import { useEffect } from 'react';
+import { recipesData } from '@/data/recipes';
+import { loadInitialData } from '@/store/recipeSlice';
+
+function Initializer() {
+  useEffect(() => {
+    store.dispatch(loadInitialData(recipesData));
+  }, []);
+
+  return null;
+}
 
 export default function App({ Component, pageProps }: AppProps) {
   return (
@@ -14,9 +25,10 @@ export default function App({ Component, pageProps }: AppProps) {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
+      <Initializer />
       <Layout>
         <Component {...pageProps} />
       </Layout>
     </Provider>
-  )
+  );
 }
