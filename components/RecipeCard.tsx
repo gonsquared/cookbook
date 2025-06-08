@@ -2,29 +2,29 @@ import React from 'react';
 import {
   Card,
   CardMedia,
-  CardContent,
   Typography,
   Box,
   IconButton,
 } from '@mui/material';
-import StarIcon from '@mui/icons-material/Star';
+import Star from '@mui/icons-material/Star';
+import StarBorder from '@mui/icons-material/StarBorder';
 
 interface RecipeCardProps {
-  imageUrl: string;
+  name: string;
+  imageUrl: string | File;
   title: string;
   description: string;
-  author: string;
   date: string;
   isFavorite?: boolean;
 }
 
 const RecipeCard: React.FC<RecipeCardProps> = ({
+  name,
   imageUrl,
   title,
   description,
-  author,
   date,
-  isFavorite = true,
+  isFavorite = false,
 }) => {
   return (
     <Card
@@ -35,15 +35,13 @@ const RecipeCard: React.FC<RecipeCardProps> = ({
         boxShadow: 2,
       }}
     >
-      {/* Image Section */}
       <Box sx={{ position: 'relative' }}>
         <CardMedia
           component="img"
           sx={{ width: 180, height: '100%', objectFit: 'cover' }}
-          image={imageUrl}
+          image={`/images/${imageUrl}`}
           alt={title}
         />
-        {isFavorite && (
           <IconButton
             sx={{
               position: 'absolute',
@@ -56,12 +54,10 @@ const RecipeCard: React.FC<RecipeCardProps> = ({
               boxShadow: 1,
             }}
           >
-            <StarIcon />
+            {isFavorite ? <Star /> : <StarBorder />}
           </IconButton>
-        )}
       </Box>
 
-      {/* Content Section */}
       <Box sx={{ display: 'flex', flexDirection: 'column', flex: 1, p: 2 }}>
         <Typography variant="h6" fontWeight="bold" gutterBottom>
           {title}
@@ -77,10 +73,9 @@ const RecipeCard: React.FC<RecipeCardProps> = ({
           See more
         </Typography>
 
-        {/* Footer */}
         <Box sx={{ mt: 'auto', display: 'flex', justifyContent: 'space-between' }}>
           <Typography variant="body2">
-            <strong>Added by:</strong> {author}
+            <strong>Added by:</strong> {name}
           </Typography>
           <Typography variant="body2">
             <strong>Date:</strong> {date}

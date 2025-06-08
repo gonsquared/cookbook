@@ -20,7 +20,6 @@ export default function CreateRecipePage() {
           isFavorite: true
         }}
       /> */}
-   
     </>
   )
 }

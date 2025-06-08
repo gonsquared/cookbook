@@ -1,12 +1,34 @@
-import React, { ChangeEvent, useState } from "react";
-import { Box, Checkbox, FormControl, FormControlLabel, FormGroup, FormLabel, Grid, MenuItem, Paper, Select, Typography } from "@mui/material";
+import React, { ChangeEvent, useEffect, useState } from "react";
+import {
+  Box,
+  Checkbox,
+  Divider,
+  FormControl,
+  FormControlLabel,
+  FormGroup,
+  FormLabel,
+  Grid,
+  MenuItem,
+  Paper,
+  Select,
+  Typography
+} from "@mui/material";
 import RecipeCard from "@/components/RecipeCard";
+import { Recipe } from "@/types/Recipe";
+import { recipesData } from "@/data/recipes";
+import NoRecords from "@/components/NoRecords";
 
 const HomePage = () => {
-  const [isFavorite, setIsFavorite] = React.useState({
+  const [data, setData] = useState<Recipe[]>([]);
+
+  const [isFavorite, setIsFavorite] = useState({
     yes: false,
     no: false
   });
+
+  useEffect(() => {
+    setData(recipesData)
+  }, []);
 
   const handleSortChange = () => {
     //sort
@@ -93,17 +115,36 @@ const HomePage = () => {
         size={9}
         sx={{
           backgroundColor: "white",
-          borderRadius: "15px",
-          padding: "32px"
+          borderRadius: 2,
+          padding: 4,
+          height: 1,
+          overflowY: "scroll"
         }}
       >
-        <RecipeCard
-          imageUrl="https://source.unsplash.com/featured/?food"
-          title="Delicious Chicken Curry"
-          description="Lorem Ipsum is simply dummy text of the printing and typesetting industry."
-          author="Johnny"
-          date="March 6, 2024"
-        />
+        {data.length > 0 ? (
+          data.map((recipe: Recipe, index) => (
+            <Box
+              key={recipe.title}
+              sx={{
+                p: 1,
+                mb: 1,
+              }}
+            >
+              <RecipeCard
+                imageUrl={recipe.image}
+                title={recipe.title}
+                description={recipe.description}
+                name={recipe.name}
+                date={recipe.dateAdded}
+                isFavorite={recipe.isFavorite}
+              />
+              {index !== data.length - 1 && <Divider sx={{ mt: 3 }} /> }
+            </Box>
+          ))
+        ) : (
+          <NoRecords />
+        )}
+        
       </Grid>
     </Grid>
   );

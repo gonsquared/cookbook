@@ -46,7 +46,6 @@ const RecipeForm: React.FC<RecipeFormProps> = ({ isEdit = false, data }) => {
 
   return (
     <Box sx={{ minHeight: '100vh', bgcolor: '#f0f0f0', p: 2 }}>
-      {/* Header with Back */}
       <Box
         sx={{
           display: 'flex',
@@ -69,7 +68,6 @@ const RecipeForm: React.FC<RecipeFormProps> = ({ isEdit = false, data }) => {
 
       <form onSubmit={handleSubmit(onSubmit)} noValidate>
         <Grid container spacing={2}>
-          {/* Image Section */}
           <Grid size={12}>
             <Paper
               elevation={1}
@@ -111,7 +109,6 @@ const RecipeForm: React.FC<RecipeFormProps> = ({ isEdit = false, data }) => {
             </Box>
           </Grid>
 
-          {/* Form Fields */}
           <Grid size={12}>
             <Grid container spacing={2}>
               <Grid size={12}>
