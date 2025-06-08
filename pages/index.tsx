@@ -1,6 +1,7 @@
 import React, { ChangeEvent, useEffect, useState } from "react";
 import {
   Box,
+  CardMedia,
   Checkbox,
   Divider,
   FormControl,
@@ -8,6 +9,7 @@ import {
   FormGroup,
   FormLabel,
   Grid,
+  IconButton,
   MenuItem,
   Paper,
   Select,
@@ -17,6 +19,7 @@ import RecipeCard from "@/components/RecipeCard";
 import { Recipe } from "@/types/Recipe";
 import { recipesData } from "@/data/recipes";
 import NoRecords from "@/components/NoRecords";
+import AddCircle from "@mui/icons-material/AddCircle";
 
 const HomePage = () => {
   const [data, setData] = useState<Recipe[]>([]);
@@ -121,30 +124,46 @@ const HomePage = () => {
           overflowY: "scroll"
         }}
       >
-        {data.length > 0 ? (
-          data.map((recipe: Recipe, index) => (
-            <Box
-              key={recipe.title}
+        <Box
+          sx={{
+            position: 'absolute',
+            right: "3rem",
+            top: "5rem",
+          }}
+        >
+            <IconButton
               sx={{
-                p: 1,
-                mb: 1,
+                color: 'blue',
               }}
             >
-              <RecipeCard
-                imageUrl={recipe.image}
-                title={recipe.title}
-                description={recipe.description}
-                name={recipe.name}
-                date={recipe.dateAdded}
-                isFavorite={recipe.isFavorite}
-              />
-              {index !== data.length - 1 && <Divider sx={{ mt: 3 }} /> }
-            </Box>
-          ))
-        ) : (
-          <NoRecords />
-        )}
-        
+              <AddCircle sx={{ fontSize: "2rem" }} />
+            </IconButton>
+        </Box>
+        <Box>
+          {data.length > 0 ? (
+            data.map((recipe: Recipe, index) => (
+              <Box
+                key={recipe.title}
+                sx={{
+                  p: 1,
+                  mb: 1,
+                }}
+              >
+                <RecipeCard
+                  imageUrl={recipe.image}
+                  title={recipe.title}
+                  description={recipe.description}
+                  name={recipe.name}
+                  date={recipe.dateAdded}
+                  isFavorite={recipe.isFavorite}
+                />
+                {index !== data.length - 1 && <Divider sx={{ mt: 3 }} /> }
+              </Box>
+            ))
+          ) : (
+            <NoRecords />
+          )}
+        </Box>
       </Grid>
     </Grid>
   );
