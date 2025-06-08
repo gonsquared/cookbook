@@ -1,9 +1,11 @@
 import React, { ChangeEvent, useEffect, useState } from "react";
+import { useRouter } from "next/router";
 import {
   Box,
   CardMedia,
   Checkbox,
   Divider,
+  Fab,
   FormControl,
   FormControlLabel,
   FormGroup,
@@ -13,6 +15,7 @@ import {
   MenuItem,
   Paper,
   Select,
+  Tooltip,
   Typography
 } from "@mui/material";
 import RecipeCard from "@/components/RecipeCard";
@@ -22,6 +25,7 @@ import NoRecords from "@/components/NoRecords";
 import AddCircle from "@mui/icons-material/AddCircle";
 
 const HomePage = () => {
+  const router = useRouter();
   const [data, setData] = useState<Recipe[]>([]);
 
   const [isFavorite, setIsFavorite] = useState({
@@ -121,33 +125,34 @@ const HomePage = () => {
           borderRadius: 2,
           padding: 4,
           height: 1,
-          overflowY: "scroll"
+          overflowY: "scroll",
+          position: "relative"
         }}
       >
         <Box
           sx={{
-            position: 'absolute',
-            right: "3rem",
-            top: "5rem",
+            position: 'sticky',
+            top: 0,
+            display: 'flex',
+            justifyContent: 'flex-end',
+            zIndex: 1,
           }}
         >
+          <Tooltip title="Create Recipe">
             <IconButton
-              sx={{
-                color: 'blue',
-              }}
+              color="primary"
+              onClick={() => router.push('/recipe/create')}
             >
-              <AddCircle sx={{ fontSize: "2rem" }} />
+              <AddCircle />
             </IconButton>
+          </Tooltip>
         </Box>
-        <Box>
+        <Box sx={{ position: "relative", top: "-3rem", }}>
           {data.length > 0 ? (
             data.map((recipe: Recipe, index) => (
               <Box
                 key={recipe.title}
-                sx={{
-                  p: 1,
-                  mb: 1,
-                }}
+                sx={{ p: 1, mb: 1 }}
               >
                 <RecipeCard
                   imageUrl={recipe.image}
