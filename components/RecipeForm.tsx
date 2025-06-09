@@ -22,6 +22,7 @@ import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { addRecipe, updateRecipe, getAllRecipes, deleteRecipe } from "@/store/recipeSlice";
 import { v4 as uuidv4 } from "uuid";
 import { useSnackbar } from "notistack";
+import Image from "next/image";
 
 type RecipeFormValues = z.infer<typeof recipeSchema>;
 
@@ -183,38 +184,42 @@ const RecipeForm: React.FC<RecipeFormProps> = ({ isEdit = false, data }) => {
               />
 
               <label htmlFor="image-upload">
-                <Paper
-                  elevation={1}
-                  sx={{
-                    width: "100%",
-                    aspectRatio: "1 / 1",
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    bgcolor: "#ccc",
-                    borderRadius: 1,
-                    overflow: "hidden",
-                    cursor: "pointer",
-                    border: errors.image ? '2px solid red' : '2px solid transparent',
-                    transition: 'border 0.2s ease-in-out',
-                  }}
-                >
-                  {typeof window !== "undefined" && imageFile instanceof FileList && imageFile.length > 0 ? (
-                    <img
-                      src={URL.createObjectURL(imageFile[0])}
-                      alt="Preview"
-                      style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                    />
-                  ) : typeof data?.image === "string" ? (
-                    <img
-                      src={`/images/${data.image}`}
-                      alt={data.title}
-                      style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                    />
-                  ) : (
-                    <ImageIcon sx={{ fontSize: 80, color: "white" }} />
-                  )}
-                </Paper>
+              <Paper
+                elevation={1}
+                sx={{
+                  width: "100%",
+                  aspectRatio: "1 / 1",
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  bgcolor: "#ccc",
+                  borderRadius: 1,
+                  overflow: "hidden",
+                  cursor: "pointer",
+                  border: errors.image ? '2px solid red' : '2px solid transparent',
+                  transition: 'border 0.2s ease-in-out',
+                  position: "relative",
+                }}
+              >
+                {typeof window !== "undefined" && imageFile instanceof FileList && imageFile.length > 0 ? (
+                  <Image
+                    src={URL.createObjectURL(imageFile[0])}
+                    alt="Preview"
+                    fill
+                    style={{ objectFit: "contain" }}
+                    unoptimized 
+                  />
+                ) : typeof data?.image === "string" ? (
+                  <Image
+                    src={`/images/${data.image}`}
+                    alt={data.title}
+                    fill
+                    style={{ objectFit: "contain" }}
+                  />
+                ) : (
+                  <ImageIcon sx={{ fontSize: 80, color: "white" }} />
+                )}
+              </Paper>
               </label>
               {typeof errors.image?.message === 'string' && (
                 <Typography color="error" variant="body2" mt={1}>
