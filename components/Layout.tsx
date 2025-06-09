@@ -1,8 +1,8 @@
-import * as React from 'react';
-import AppBar from '@mui/material/AppBar';
-import Toolbar from '@mui/material/Toolbar';
-import { Container } from '@mui/material';
-import SearchInput from './SearchInput';
+import * as React from "react";
+import AppBar from "@mui/material/AppBar";
+import Toolbar from "@mui/material/Toolbar";
+import { Container } from "@mui/material";
+import SearchInput from "./SearchInput";
 
 type LayoutProps = {
     children: React.ReactNode
@@ -18,13 +18,12 @@ const Layout = ({ children }: LayoutProps) => {
             alignSelf: "flex-end"
           }}
         >
-          <SearchInput />
         </Toolbar>
       </AppBar>
       <Container
         sx={{
           my: 0,
-          mx: 'auto'
+          mx: "auto"
         }}
       >
         {children}

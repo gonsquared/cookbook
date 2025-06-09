@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import {
   Box,
   Button,
@@ -9,18 +9,19 @@ import {
   Paper,
   FormControlLabel,
   Checkbox,
-} from '@mui/material';
-import ArrowBackIos from '@mui/icons-material/ArrowBackIos';
-import ImageIcon from '@mui/icons-material/Image';
-import { Controller, SubmitHandler, useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import { recipeSchema } from '@/utils/validators';
-import { Recipe } from '@/types/Recipe';
-import { useRouter } from 'next/router';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { addRecipe, updateRecipe, getAllRecipes } from '@/store/recipeSlice';
-import { v4 as uuidv4 } from 'uuid';
+} from "@mui/material";
+import ArrowBackIos from "@mui/icons-material/ArrowBackIos";
+import ImageIcon from "@mui/icons-material/Image";
+import { Controller, SubmitHandler, useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { recipeSchema } from "@/utils/validators";
+import { Recipe } from "@/types/Recipe";
+import { useRouter } from "next/router";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { addRecipe, updateRecipe, getAllRecipes } from "@/store/recipeSlice";
+import { v4 as uuidv4 } from "uuid";
+import { useSnackbar } from "notistack";
 
 type RecipeFormValues = z.infer<typeof recipeSchema>;
 
@@ -47,9 +48,11 @@ const RecipeForm: React.FC<RecipeFormProps> = ({ isEdit = false, data }) => {
     },
   });
 
-  const imageFile = watch('image');
+  const imageFile = watch("image");
 
   const existingRecipes = useAppSelector(getAllRecipes);
+
+  const { enqueueSnackbar } = useSnackbar();
 
   const onSubmit: SubmitHandler<RecipeFormValues> = async (values) => {
 
@@ -59,7 +62,7 @@ const RecipeForm: React.FC<RecipeFormProps> = ({ isEdit = false, data }) => {
       );
   
       if (titleExists) {
-        alert('A recipe with this title already exists. Please choose a different title.');
+        enqueueSnackbar("A recipe with this title already exists.", { variant: 'error' });
         return;
       }
     }
@@ -68,33 +71,33 @@ const RecipeForm: React.FC<RecipeFormProps> = ({ isEdit = false, data }) => {
     const file = values.image instanceof FileList ? values.image[0] : undefined;
   
     if (file) {
-      formData.append('image', file);
-    } else if (isEdit && typeof data?.image === 'string') {
-      formData.append('existingImage', data.image);
+      formData.append("image", file);
+    } else if (isEdit && typeof data?.image === "string") {
+      formData.append("existingImage", data.image);
     } else {
-      console.error('No image file selected');
+      enqueueSnackbar("No image file selected", { variant: 'error' })
     }
   
     const id = isEdit && data?.id ? data.id : uuidv4();
-    formData.append('id', id);
-    formData.append('name', values.name);
-    formData.append('email', values.email);
-    formData.append('title', values.title);
-    formData.append('description', values.description);
-    formData.append('ingredients', values.ingredients);
-    formData.append('instructions', values.instructions);
-    formData.append('isFavorite', String(values.isFavorite));
+    formData.append("id", id);
+    formData.append("name", values.name);
+    formData.append("email", values.email);
+    formData.append("title", values.title);
+    formData.append("description", values.description);
+    formData.append("ingredients", values.ingredients);
+    formData.append("instructions", values.instructions);
+    formData.append("isFavorite", String(values.isFavorite));
   
     try {
-      const res = await fetch('/api/upload', {
-        method: 'POST',
+      const res = await fetch("/api/upload", {
+        method: "POST",
         body: formData,
       });
   
       const result = await res.json();
   
       if (!res.ok) {
-        throw new Error(result.message || 'Failed to upload recipe');
+        throw new Error(result.message || "Failed to upload recipe");
       }
   
       const newRewcipe: Recipe = {
@@ -112,23 +115,25 @@ const RecipeForm: React.FC<RecipeFormProps> = ({ isEdit = false, data }) => {
   
       if (isEdit) {
         dispatch(updateRecipe(newRewcipe));
+        enqueueSnackbar("Recipe updated successfully!", { variant: 'success' });
       } else {
         dispatch(addRecipe(newRewcipe));
+        enqueueSnackbar("Recipe created successfully!", { variant: 'success' });
       }
   
-      router.push('/');
+      router.push("/");
     } catch (error) {
-      console.error('Error submitting form:', error);
+      enqueueSnackbar("Error in saving the recipe.", { variant: 'error' });
     }
   };  
   
   return (
-    <Box sx={{ height: "100%", bgcolor: '#f0f0f0', p: 2 }}>
+    <Box sx={{ height: "100%", bgcolor: "#ffffff", p: 2 }}>
       <form
         onSubmit={handleSubmit(
           onSubmit,
           (formErrors) => {
-            console.error('Validation errors:', formErrors);
+            console.error("Validation errors:", formErrors);
           }
         )}
         noValidate
@@ -138,15 +143,15 @@ const RecipeForm: React.FC<RecipeFormProps> = ({ isEdit = false, data }) => {
             <Box
               sx=
               {{
-                display: 'flex',
-                alignItems: 'center',
+                display: "flex",
+                alignItems: "center",
                 mb: 2,
                 px: 2,
                 py: 1
               }}
               onClick={() => router.push("/")}
             >
-              <IconButton color="inherit" onClick={() => router.push('/')}>
+              <IconButton color="inherit" onClick={() => router.push("/")}>
                 <ArrowBackIos />
               </IconButton>
               <Typography variant="body1" sx={{ ml: 1 }}>
@@ -156,30 +161,30 @@ const RecipeForm: React.FC<RecipeFormProps> = ({ isEdit = false, data }) => {
             <Paper
               elevation={1}
               sx={{
-                width: '100%',
-                aspectRatio: '1 / 1',
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-                bgcolor: '#ccc',
+                width: "100%",
+                aspectRatio: "1 / 1",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                bgcolor: "#ccc",
                 borderRadius: 1,
-                overflow: 'hidden',
+                overflow: "hidden",
               }}
             >
-              {typeof window !== 'undefined' && imageFile instanceof File ? (
+              {typeof window !== "undefined" && imageFile instanceof File ? (
                 <img
                   src={URL.createObjectURL(imageFile)}
                   alt="Preview"
-                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                  style={{ width: "100%", height: "100%", objectFit: "cover" }}
                 />
-              ) : typeof data?.image === 'string' ? (
+              ) : typeof data?.image === "string" ? (
                 <img
                   src={`/images/${data.image}`}
                   alt={data.title}
-                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                  style={{ width: "100%", height: "100%", objectFit: "cover" }}
                 />
               ) : (
-                <ImageIcon sx={{ fontSize: 80, color: 'white' }} />
+                <ImageIcon sx={{ fontSize: 80, color: "white" }} />
               )}
             </Paper>
 
@@ -187,10 +192,10 @@ const RecipeForm: React.FC<RecipeFormProps> = ({ isEdit = false, data }) => {
               <input
                 type="file"
                 accept="image/*"
-                {...register('image', {
+                {...register("image", {
                   validate: (value) => {
                     if (value instanceof FileList && value.length > 0) return true;
-                    return 'Image is required';
+                    return "Image is required";
                   },
                 })}
               />
@@ -203,7 +208,7 @@ const RecipeForm: React.FC<RecipeFormProps> = ({ isEdit = false, data }) => {
                 <TextField
                   fullWidth
                   label="Your Name"
-                  {...register('name')}
+                  {...register("name")}
                   error={!!errors.name}
                   helperText={errors.name?.message}
                 />
@@ -212,7 +217,7 @@ const RecipeForm: React.FC<RecipeFormProps> = ({ isEdit = false, data }) => {
                 <TextField
                   fullWidth
                   label="Email Address"
-                  {...register('email')}
+                  {...register("email")}
                   error={!!errors.email}
                   helperText={errors.email?.message}
                 />
@@ -221,14 +226,13 @@ const RecipeForm: React.FC<RecipeFormProps> = ({ isEdit = false, data }) => {
                 <TextField
                   fullWidth
                   label="Title"
-                  {...register('title')}
+                  {...register("title")}
                   error={!!errors.title}
                   helperText={errors.title?.message}
                   InputProps={{ readOnly: isEdit }}
-                  // to do: make it appear disabled when readOnly is true
                   // sx={{
                   //   ":read-only": {
-                  //     backgroundColor: 'lightgray',
+                  //     backgroundColor: "lightgray",
                   //     cursor: "no-drop" 
                   //   }
                   // }}
@@ -240,7 +244,7 @@ const RecipeForm: React.FC<RecipeFormProps> = ({ isEdit = false, data }) => {
                   multiline
                   rows={2}
                   label="Description"
-                  {...register('description')}
+                  {...register("description")}
                   error={!!errors.description}
                   helperText={errors.description?.message}
                 />
@@ -251,7 +255,7 @@ const RecipeForm: React.FC<RecipeFormProps> = ({ isEdit = false, data }) => {
                   multiline
                   rows={3}
                   label="Ingredients"
-                  {...register('ingredients')}
+                  {...register("ingredients")}
                   error={!!errors.ingredients}
                   helperText={errors.ingredients?.message}
                 />
@@ -262,7 +266,7 @@ const RecipeForm: React.FC<RecipeFormProps> = ({ isEdit = false, data }) => {
                   multiline
                   rows={3}
                   label="Instructions"
-                  {...register('instructions')}
+                  {...register("instructions")}
                   error={!!errors.instructions}
                   helperText={errors.instructions?.message}
                 />
@@ -287,7 +291,7 @@ const RecipeForm: React.FC<RecipeFormProps> = ({ isEdit = false, data }) => {
               <Grid size={12} sx={{ textAlign: "right" }}>
                 {isEdit && (
                   <Button
-                    variant='contained'
+                    variant="contained"
                     color="error"
                     sx={{
                       mr: 2,

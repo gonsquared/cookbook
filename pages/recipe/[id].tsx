@@ -4,6 +4,7 @@ import { useRouter } from 'next/router';
 import { Recipe } from '@/types/Recipe';
 import { useAppSelector } from '@/store/hooks';
 import { Box } from '@mui/material';
+import Layout from '@/components/Layout';
 
 export default function RecipeDetailsPage() {
   const router = useRouter();
@@ -19,22 +20,24 @@ export default function RecipeDetailsPage() {
   if (!recipe) return (<><h1>Recipe not found!</h1></>)
 
   return (
-    <Box sx={{ height: "87vh", m: 2 }}>
-      <RecipeForm
-      isEdit={true}
-      data={{
-        id: recipe?.id,
-        name: recipe?.name,
-        email: recipe?.email,
-        title: recipe?.title,
-        description: recipe?.description,
-        ingredients: recipe?.ingredients,
-        instructions: recipe?.instructions,
-        image: recipe?.image,
-        dateAdded: recipe?.dateAdded,
-        isFavorite: recipe?.isFavorite
-      }}
-    />
-    </Box>    
+    <Layout>
+      <Box sx={{ height: "87vh", m: 2 }}>
+        <RecipeForm
+          isEdit={true}
+          data={{
+            id: recipe?.id,
+            name: recipe?.name,
+            email: recipe?.email,
+            title: recipe?.title,
+            description: recipe?.description,
+            ingredients: recipe?.ingredients,
+            instructions: recipe?.instructions,
+            image: recipe?.image,
+            dateAdded: recipe?.dateAdded,
+            isFavorite: recipe?.isFavorite
+          }}
+        />
+      </Box>   
+    </Layout>
   )
 }

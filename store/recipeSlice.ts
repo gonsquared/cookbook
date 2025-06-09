@@ -22,6 +22,12 @@ const recipeSlice = createSlice({
     updateRecipe: (state, action: PayloadAction<Recipe>) => {
       const index = state.findIndex((r) => r.id === action.payload.id);
       if (index !== -1) state[index] = action.payload;
+    },
+    toggleFavorite: (state, action: PayloadAction<string>) => {
+      const index = state.findIndex((r) => r.id === action.payload);
+      if (index !== -1) {
+        state[index].isFavorite = !state[index].isFavorite;
+      }
     }
   },
   extraReducers: (builder) => {
@@ -35,6 +41,7 @@ export const {
   loadInitialData,
   deleteRecipe,
   updateRecipe,
+  toggleFavorite
 } = recipeSlice.actions;
 
 export const getAllRecipes = (state: RootState) => state.recipe;

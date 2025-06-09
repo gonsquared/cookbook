@@ -4,10 +4,24 @@ import InputBase from "@mui/material/InputBase";
 import IconButton from "@mui/material/IconButton";
 import SearchIcon from "@mui/icons-material/Search";
 
-const SearchInput = () => {
+interface SearchInputProps {
+  value: string;
+  onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  onSearch: () => void;
+}
+
+const SearchInput: React.FC<SearchInputProps> = ({ value, onChange, onSearch }) => {
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      onSearch();
+    }
+  };
+
   return (
     <Paper
       component="form"
+      onSubmit={(e) => e.preventDefault()}
       sx={{
         p: "2px 4px",
         display: "flex",
@@ -18,9 +32,12 @@ const SearchInput = () => {
       <InputBase
         sx={{ ml: 1, flex: 1 }}
         placeholder="Search here..."
-        inputProps={{ "aria-label": "search google maps" }}
+        value={value}
+        onChange={onChange}
+        onKeyDown={handleKeyDown}
+        inputProps={{ "aria-label": "search recipes" }}
       />
-      <IconButton type="button" sx={{ p: "10px" }} aria-label="search">
+      <IconButton type="button" sx={{ p: "10px" }} aria-label="search" onClick={onSearch}>
         <SearchIcon />
       </IconButton>
     </Paper>
