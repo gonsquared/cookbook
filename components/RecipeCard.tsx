@@ -8,17 +8,20 @@ import {
 } from '@mui/material';
 import Star from '@mui/icons-material/Star';
 import StarBorder from '@mui/icons-material/StarBorder';
+import Link from 'next/link';
 
 interface RecipeCardProps {
+  id: string,
   name: string;
   imageUrl: string | File;
   title: string;
   description: string;
   date: string;
-  isFavorite?: boolean;
+  isFavorite: boolean;
 }
 
 const RecipeCard: React.FC<RecipeCardProps> = ({
+  id,
   name,
   imageUrl,
   title,
@@ -62,14 +65,15 @@ const RecipeCard: React.FC<RecipeCardProps> = ({
         <Typography variant="body2" sx={{ mb: 1 }}>
           {description}
         </Typography>
-        <Typography
-          variant="body2"
-          color="primary"
-          sx={{ cursor: 'pointer', mb: 2 }}
-        >
-          See more
-        </Typography>
-
+        <Link href={`/recipe/${id}`} passHref>
+          <Typography
+            variant="body2"
+            color="primary"
+            sx={{ cursor: 'pointer', mb: 2 }}
+          >
+            See more
+          </Typography>
+        </Link>
         <Box sx={{ mt: 'auto', display: 'flex', justifyContent: 'space-between' }}>
           <Typography variant="body2">
             <strong>Added by:</strong> {name}

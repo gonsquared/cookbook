@@ -7,10 +7,12 @@ import {
   TextField,
   Typography,
   Paper,
+  FormControlLabel,
+  Checkbox,
 } from '@mui/material';
 import ArrowBackIos from '@mui/icons-material/ArrowBackIos';
 import ImageIcon from '@mui/icons-material/Image';
-import { useForm } from 'react-hook-form';
+import { SubmitHandler, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { recipeSchema } from '@/utils/validators';
@@ -38,31 +40,33 @@ const RecipeForm: React.FC<RecipeFormProps> = ({ isEdit = false, data }) => {
     formState: { errors },
   } = useForm<RecipeFormValues>({
     resolver: zodResolver(recipeSchema),
-    defaultValues: isEdit && data ? data : {},
+    defaultValues: isEdit && data ? data : { isFavorite: false },
   });
 
   const imageFile = watch('image');
 
-  const onSubmit = async (values: RecipeFormValues) => {
+  const onSubmit: SubmitHandler<RecipeFormValues> = async (values) => {
+    console.log("sumbit form");
     const formData = new FormData();
     const file = values.image instanceof FileList ? values.image[0] : undefined;
-
+  
     if (file) {
       formData.append('image', file);
+    } else if (isEdit && typeof data?.image === 'string') {
+      formData.append('existingImage', data.image);
     } else {
-      // Optional: handle the case where no image was uploaded
       console.error('No image file selected');
     }
+  
+    const id = isEdit && data?.id ? data.id : uuidv4();
+    formData.append('id', id);
     formData.append('name', values.name);
     formData.append('email', values.email);
     formData.append('title', values.title);
     formData.append('description', values.description);
     formData.append('ingredients', values.ingredients);
     formData.append('instructions', values.instructions);
-  
-    if (values.image instanceof File) {
-      formData.append('image', values.image);
-    }
+    formData.append('isFavorite', String(values.isFavorite));
   
     try {
       const res = await fetch('/api/upload', {
@@ -76,34 +80,47 @@ const RecipeForm: React.FC<RecipeFormProps> = ({ isEdit = false, data }) => {
         throw new Error(result.message || 'Failed to upload recipe');
       }
   
-      // Dispatch to Redux
-      const newRecipe: Recipe = {
-        id: result.id, // e.g. generated in backend or use uuid
+      const newRewcipe: Recipe = {
+        id,
         name: values.name,
         email: values.email,
         title: values.title,
         description: values.description,
         ingredients: values.ingredients,
         instructions: values.instructions,
-        image: result.filename, // returned from API
-        dateAdded: new Date().toDateString(),
-        isFavorite: false,
+        image: result.filename,
+        dateAdded: data?.dateAdded ?? new Date().toDateString(),
+        isFavorite: values.isFavorite,
       };
   
-      dispatch(addRecipe(newRecipe));
+      if (isEdit) {
+        dispatch(updateRecipe(newRewcipe));
+      } else {
+        dispatch(addRecipe(newRewcipe));
+      }
+  
       router.push('/');
     } catch (error) {
       console.error('Error submitting form:', error);
     }
-  };
+  };  
   
-
   return (
-    <Box sx={{ minHeight: '100vh', bgcolor: '#f0f0f0', p: 2 }}>
+    <Box sx={{ height: "100%", bgcolor: '#f0f0f0', p: 2 }}>
       <form onSubmit={handleSubmit(onSubmit)} noValidate>
         <Grid container spacing={2}>
           <Grid size={6}>
-            <Box sx={{ display: 'flex', alignItems: 'center', mb: 2, px: 2, py: 1 }}>
+            <Box
+              sx=
+              {{
+                display: 'flex',
+                alignItems: 'center',
+                mb: 2,
+                px: 2,
+                py: 1
+              }}
+              onClick={() => router.push("/")}
+            >
               <IconButton color="inherit" onClick={() => router.push('/')}>
                 <ArrowBackIos />
               </IconButton>
@@ -183,6 +200,12 @@ const RecipeForm: React.FC<RecipeFormProps> = ({ isEdit = false, data }) => {
                   error={!!errors.title}
                   helperText={errors.title?.message}
                   InputProps={{ readOnly: isEdit }}
+                  // sx={{
+                  //   ":read-only": {
+                  //     backgroundColor: 'lightgray',
+                  //     cursor: "no-drop" 
+                  //   }
+                  // }}
                 />
               </Grid>
               <Grid size={12}>
@@ -218,9 +241,37 @@ const RecipeForm: React.FC<RecipeFormProps> = ({ isEdit = false, data }) => {
                   helperText={errors.instructions?.message}
                 />
               </Grid>
+              <Grid size={12}>
+                {/* to do: initial value is not reflecting */}
+                <FormControlLabel
+                  control={
+                    <Checkbox {...register('isFavorite')} />
+                  }
+                  label="Mark as Favorite"
+                />
+              </Grid>
               <Grid size={12} sx={{ textAlign: "right" }}>
-                <Button variant="contained" color="primary" type="submit">
-                  {isEdit ? 'Update' : 'Save'}
+                {isEdit && (
+                  <Button
+                    variant='contained'
+                    color="error"
+                    sx={{
+                      mr: 2,
+                      width: "20%"
+                    }}
+                  >
+                    Delete
+                  </Button>
+                )}
+                <Button
+                  variant="contained"
+                  color="primary"
+                  type="submit"
+                  sx={{
+                    width: "20%"
+                  }}  
+                >
+                  Save
                 </Button>
               </Grid>
             </Grid>

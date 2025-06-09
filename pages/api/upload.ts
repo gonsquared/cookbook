@@ -28,7 +28,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     uploadDir,
     keepExtensions: true,
     filename: (_name, ext, part) => {
-      return Date.now().toString() + '_' + part.originalFilename;
+      return String(part.originalFilename);
     },
   });
 
@@ -37,10 +37,20 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       console.error(err);
       return res.status(500).json({ message: 'File upload error' });
     }
-
-    const file = files.image?.[0] as FormidableFile;
-    const fileName = path.basename(file.filepath);
-
-    return res.status(200).json({ filename: fileName });
+  
+    const file = Array.isArray(files.image) ? files.image[0] : undefined;
+    const fallbackFilename = Array.isArray(fields.existingImage)
+      ? fields.existingImage[0]
+      : undefined;
+  
+    const fileName = file?.filepath
+      ? path.basename(file.filepath)
+      : fallbackFilename;
+  
+    if (!fileName) {
+      return res.status(400).json({ message: 'Image is required' });
+    }
+  
+    return res.status(200).json({ filename: fileName, id: fields.id?.[0] });
   });
 }

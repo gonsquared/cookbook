@@ -39,10 +39,7 @@ const HomePage = () => {
   }
   
   const handleFilterChange = (event: ChangeEvent<HTMLInputElement>) => {
-    setIsFavorite({
-      ...isFavorite,
-      [event.target.name]: event.target.checked,
-    });
+    // filter
   };
 
   return (
@@ -152,6 +149,7 @@ const HomePage = () => {
                 sx={{ p: 1, mb: 1 }}
               >
                 <RecipeCard
+                  id={recipe.id}
                   imageUrl={recipe.image}
                   title={recipe.title}
                   description={recipe.description}

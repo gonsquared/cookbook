@@ -1,9 +1,7 @@
 import { z } from 'zod';
 
-const isFile = (value: unknown): value is File =>
-  typeof File !== 'undefined' && value instanceof File;
-
 export const recipeSchema = z.object({
+  id: z.string().min(1, 'id is required'),
   name: z.string().min(1, 'Name is required'),
   email: z.string().email('Invalid email address'),
   title: z.string().min(1, 'Title is required'),
@@ -17,5 +15,6 @@ export const recipeSchema = z.object({
     {
       message: 'Image is required',
     }
-  )
+  ),
+  isFavorite: z.boolean(),
 });

@@ -1,4 +1,5 @@
 import { createSlice, PayloadAction, createAsyncThunk } from '@reduxjs/toolkit';
+import { RootState } from './index';
 import { Recipe } from '../types/Recipe';
 
 const initialState: Recipe[] = [];
@@ -35,5 +36,7 @@ export const {
   deleteRecipe,
   updateRecipe,
 } = recipeSlice.actions;
+
+export const selectAllRecipes = (state: RootState) => state.recipe;
 
 export default recipeSlice.reducer;
