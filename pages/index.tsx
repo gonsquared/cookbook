@@ -197,12 +197,13 @@ const HomePage = () => {
                 <IconButton
                   color="primary"
                   onClick={() => router.push("/recipe/create")}
+                  sx={{ fontSize: 64 }}
                 >
-                  <AddCircle />
+                  <AddCircle sx={{ fontSize: 36 }} />
                 </IconButton>
               </Tooltip>
             </Box>
-            <Box sx={{ position: "relative" }}>
+            <Box sx={{ position: "relative", top: "-3rem" }}>
             {filteredRecipes.length > 0 ? (
               filteredRecipes.map((recipe, index) => (
                 <Box key={recipe.id} sx={{ p: 1, mb: 1 }}>
