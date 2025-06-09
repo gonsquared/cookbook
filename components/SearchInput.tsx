@@ -31,7 +31,7 @@ const SearchInput: React.FC<SearchInputProps> = ({ value, onChange, onSearch }) 
     >
       <InputBase
         sx={{ ml: 1, flex: 1 }}
-        placeholder="Search here..."
+        placeholder="Search here... (title, name)"
         value={value}
         onChange={onChange}
         onKeyDown={handleKeyDown}
