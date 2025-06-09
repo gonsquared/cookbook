@@ -19,7 +19,7 @@ import { recipeSchema } from "@/utils/validators";
 import { Recipe } from "@/types/Recipe";
 import { useRouter } from "next/router";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { addRecipe, updateRecipe, getAllRecipes } from "@/store/recipeSlice";
+import { addRecipe, updateRecipe, getAllRecipes, deleteRecipe } from "@/store/recipeSlice";
 import { v4 as uuidv4 } from "uuid";
 import { useSnackbar } from "notistack";
 
@@ -125,7 +125,17 @@ const RecipeForm: React.FC<RecipeFormProps> = ({ isEdit = false, data }) => {
     } catch (error) {
       enqueueSnackbar("Error in saving the recipe.", { variant: 'error' });
     }
-  };  
+  };
+
+  const handleDelete = () => {
+    if (!data?.id) return;
+    // const confirm = window.confirm('Are you sure you want to delete this recipe?');
+    // if (!confirm) return;
+  
+    dispatch(deleteRecipe(data.id));
+    enqueueSnackbar("Recipe deleted successfully.", { variant: "info" });
+    router.push('/');
+  };
   
   return (
     <Box sx={{ height: "100%", bgcolor: "#ffffff", p: 2 }}>
@@ -230,12 +240,10 @@ const RecipeForm: React.FC<RecipeFormProps> = ({ isEdit = false, data }) => {
                   error={!!errors.title}
                   helperText={errors.title?.message}
                   InputProps={{ readOnly: isEdit }}
-                  // sx={{
-                  //   ":read-only": {
-                  //     backgroundColor: "lightgray",
-                  //     cursor: "no-drop" 
-                  //   }
-                  // }}
+                  sx={ isEdit ? {
+                    backgroundColor: "lightgray",
+                    cursor: "no-drop"
+                  } : {}}
                 />
               </Grid>
               <Grid size={12}>
@@ -297,6 +305,7 @@ const RecipeForm: React.FC<RecipeFormProps> = ({ isEdit = false, data }) => {
                       mr: 2,
                       width: "20%"
                     }}
+                    onClick={handleDelete}
                   >
                     Delete
                   </Button>

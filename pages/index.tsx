@@ -22,7 +22,6 @@ import {
 } from "@mui/material";
 import RecipeCard from "@/components/RecipeCard";
 import { Recipe } from "@/types/Recipe";
-import NoRecords from "@/components/NoRecords";
 import AddCircle from "@mui/icons-material/AddCircle";
 import { useAppSelector } from "@/store/hooks";
 import { getAllRecipes } from "@/store/recipeSlice";
@@ -203,7 +202,7 @@ const HomePage = () => {
                 </IconButton>
               </Tooltip>
             </Box>
-            <Box sx={{ position: "relative", top: "-3rem", }}>
+            <Box sx={{ position: "relative" }}>
             {filteredRecipes.length > 0 ? (
               filteredRecipes.map((recipe, index) => (
                 <Box key={recipe.id} sx={{ p: 1, mb: 1 }}>
@@ -220,7 +219,20 @@ const HomePage = () => {
                 </Box>
               ))
             ) : (
-              <NoRecords />
+              <Box
+                sx={{
+                  minHeight: "60vh", 
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  flexDirection: "column",
+                  paddingTop: 6,
+                }}
+              >
+                <Typography variant="h5" fontWeight="bold">
+                  No record found!
+                </Typography>
+              </Box>
             )}
             </Box>
           </Grid>
