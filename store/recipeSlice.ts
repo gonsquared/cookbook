@@ -37,6 +37,6 @@ export const {
   updateRecipe,
 } = recipeSlice.actions;
 
-export const selectAllRecipes = (state: RootState) => state.recipe;
+export const getAllRecipes = (state: RootState) => state.recipe;
 
 export default recipeSlice.reducer;

@@ -17,6 +17,7 @@ import {
   MenuItem,
   Paper,
   Select,
+  SelectChangeEvent,
   Tooltip,
   Typography
 } from "@mui/material";
@@ -24,22 +25,47 @@ import RecipeCard from "@/components/RecipeCard";
 import { Recipe } from "@/types/Recipe";
 import NoRecords from "@/components/NoRecords";
 import AddCircle from "@mui/icons-material/AddCircle";
+import { useAppSelector } from "@/store/hooks";
+import { getAllRecipes } from "@/store/recipeSlice";
 
 const HomePage = () => {
   const router = useRouter();
-  const recipes = useSelector((state: RootState) => state.recipe);
+  const recipes = useAppSelector(getAllRecipes);
+  const [filteredRecipes, setFilteredRecipes] = useState<Recipe[]>(recipes);
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc" | "">("");
 
   const [isFavorite, setIsFavorite] = useState({
     yes: false,
     no: false
   });
 
-  const handleSortChange = () => {
-    //sort
-  }
+  useEffect(() => {
+    let recipesList = [...recipes];
+  
+    if (isFavorite.yes && !isFavorite.no) {
+      recipesList = recipesList.filter((r) => r.isFavorite === true);
+    } else if (!isFavorite.yes && isFavorite.no) {
+      recipesList = recipesList.filter((r) => r.isFavorite === false);
+    }
+  
+    if (sortOrder === "asc") {
+      recipesList.sort((a, b) => a.title.localeCompare(b.title));
+    } else if (sortOrder === "desc") {
+      recipesList.sort((a, b) => b.title.localeCompare(a.title));
+    }
+  
+    setFilteredRecipes(recipesList);
+  }, [recipes, isFavorite, sortOrder]);
+
+  const handleSortChange = (event: SelectChangeEvent) => {
+    setSortOrder(event.target.value as "asc" | "desc" | "");
+  };
   
   const handleFilterChange = (event: ChangeEvent<HTMLInputElement>) => {
-    // filter
+    setIsFavorite((prev) => ({
+      ...prev,
+      [event.target.name]: event.target.checked,
+    }));
   };
 
   return (
@@ -61,6 +87,7 @@ const HomePage = () => {
                 backgroundColor: "#ffffff"
               }}
             >
+              <MenuItem value="">Select</MenuItem>
               <MenuItem value="asc">ASC</MenuItem>
               <MenuItem value="desc">DESC</MenuItem>
             </Select>
@@ -75,10 +102,10 @@ const HomePage = () => {
           <Paper
             elevation={0}
             sx={{
-              border: '1px solid rgba(0, 0, 0, 0.3)',
+              border: "1px solid rgba(0, 0, 0, 0.3)",
               borderRadius: 2,
               p: 2,
-              backgroundColor: '#ffffff',
+              backgroundColor: "#ffffff",
             }}
           >
             <FormControl component="fieldset" variant="standard">
@@ -125,44 +152,41 @@ const HomePage = () => {
       >
         <Box
           sx={{
-            position: 'sticky',
+            position: "sticky",
             top: 0,
-            display: 'flex',
-            justifyContent: 'flex-end',
+            display: "flex",
+            justifyContent: "flex-end",
             zIndex: 1,
           }}
         >
           <Tooltip title="Create Recipe">
             <IconButton
               color="primary"
-              onClick={() => router.push('/recipe/create')}
+              onClick={() => router.push("/recipe/create")}
             >
               <AddCircle />
             </IconButton>
           </Tooltip>
         </Box>
         <Box sx={{ position: "relative", top: "-3rem", }}>
-          {recipes.length > 0 ? (
-            recipes.map((recipe: Recipe, index) => (
-              <Box
-                key={recipe.title}
-                sx={{ p: 1, mb: 1 }}
-              >
-                <RecipeCard
-                  id={recipe.id}
-                  imageUrl={recipe.image}
-                  title={recipe.title}
-                  description={recipe.description}
-                  name={recipe.name}
-                  date={recipe.dateAdded}
-                  isFavorite={recipe.isFavorite}
-                />
-                {index !== recipes.length - 1 && <Divider sx={{ mt: 3 }} /> }
-              </Box>
-            ))
-          ) : (
-            <NoRecords />
-          )}
+        {filteredRecipes.length > 0 ? (
+          filteredRecipes.map((recipe, index) => (
+            <Box key={recipe.id} sx={{ p: 1, mb: 1 }}>
+              <RecipeCard
+                id={recipe.id}
+                imageUrl={recipe.image}
+                title={recipe.title}
+                description={recipe.description}
+                name={recipe.name}
+                date={recipe.dateAdded}
+                isFavorite={recipe.isFavorite}
+              />
+              {index !== filteredRecipes.length - 1 && <Divider sx={{ mt: 3 }} />}
+            </Box>
+          ))
+        ) : (
+          <NoRecords />
+        )}
         </Box>
       </Grid>
     </Grid>

@@ -18,8 +18,8 @@ import { z } from 'zod';
 import { recipeSchema } from '@/utils/validators';
 import { Recipe } from '@/types/Recipe';
 import { useRouter } from 'next/router';
-import { useAppDispatch } from '@/store/hooks';
-import { addRecipe, updateRecipe } from '@/store/recipeSlice';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { addRecipe, updateRecipe, getAllRecipes } from '@/store/recipeSlice';
 import { v4 as uuidv4 } from 'uuid';
 
 type RecipeFormValues = z.infer<typeof recipeSchema>;
@@ -49,8 +49,21 @@ const RecipeForm: React.FC<RecipeFormProps> = ({ isEdit = false, data }) => {
 
   const imageFile = watch('image');
 
+  const existingRecipes = useAppSelector(getAllRecipes);
+
   const onSubmit: SubmitHandler<RecipeFormValues> = async (values) => {
-    console.log("sumbit form");
+
+    if (!isEdit) {
+      const titleExists = existingRecipes.some(
+        (recipe) => recipe.title.trim().toLowerCase() === values.title.trim().toLowerCase()
+      );
+  
+      if (titleExists) {
+        alert('A recipe with this title already exists. Please choose a different title.');
+        return;
+      }
+    }
+    
     const formData = new FormData();
     const file = values.image instanceof FileList ? values.image[0] : undefined;
   
@@ -212,6 +225,7 @@ const RecipeForm: React.FC<RecipeFormProps> = ({ isEdit = false, data }) => {
                   error={!!errors.title}
                   helperText={errors.title?.message}
                   InputProps={{ readOnly: isEdit }}
+                  // to do: make it appear disabled when readOnly is true
                   // sx={{
                   //   ":read-only": {
                   //     backgroundColor: 'lightgray',
@@ -254,7 +268,6 @@ const RecipeForm: React.FC<RecipeFormProps> = ({ isEdit = false, data }) => {
                 />
               </Grid>
               <Grid size={12}>
-                {/* to do: initial value is not reflecting */}
                 <Controller
                   name="isFavorite"
                   control={control}
