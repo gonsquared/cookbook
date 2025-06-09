@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 export const recipeSchema = z.object({
-  id: z.string().min(1, 'id is required'),
+  id: z.string().optional(),
   name: z.string().min(1, 'Name is required'),
   email: z.string().email('Invalid email address'),
   title: z.string().min(1, 'Title is required'),

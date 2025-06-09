@@ -12,7 +12,7 @@ import {
 } from '@mui/material';
 import ArrowBackIos from '@mui/icons-material/ArrowBackIos';
 import ImageIcon from '@mui/icons-material/Image';
-import { SubmitHandler, useForm } from 'react-hook-form';
+import { Controller, SubmitHandler, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { recipeSchema } from '@/utils/validators';
@@ -37,10 +37,14 @@ const RecipeForm: React.FC<RecipeFormProps> = ({ isEdit = false, data }) => {
     register,
     handleSubmit,
     watch,
+    control,
     formState: { errors },
   } = useForm<RecipeFormValues>({
     resolver: zodResolver(recipeSchema),
-    defaultValues: isEdit && data ? data : { isFavorite: false },
+    defaultValues: {
+      ...data,
+      isFavorite: data?.isFavorite ?? false,
+    },
   });
 
   const imageFile = watch('image');
@@ -107,7 +111,15 @@ const RecipeForm: React.FC<RecipeFormProps> = ({ isEdit = false, data }) => {
   
   return (
     <Box sx={{ height: "100%", bgcolor: '#f0f0f0', p: 2 }}>
-      <form onSubmit={handleSubmit(onSubmit)} noValidate>
+      <form
+        onSubmit={handleSubmit(
+          onSubmit,
+          (formErrors) => {
+            console.error('Validation errors:', formErrors);
+          }
+        )}
+        noValidate
+      >
         <Grid container spacing={2}>
           <Grid size={6}>
             <Box
@@ -243,11 +255,20 @@ const RecipeForm: React.FC<RecipeFormProps> = ({ isEdit = false, data }) => {
               </Grid>
               <Grid size={12}>
                 {/* to do: initial value is not reflecting */}
-                <FormControlLabel
-                  control={
-                    <Checkbox {...register('isFavorite')} />
-                  }
-                  label="Mark as Favorite"
+                <Controller
+                  name="isFavorite"
+                  control={control}
+                  render={({ field }) => (
+                    <FormControlLabel
+                      control={
+                        <Checkbox
+                          {...field}
+                          checked={field.value}
+                        />
+                      }
+                      label="Mark as Favorite"
+                    />
+                  )}
                 />
               </Grid>
               <Grid size={12} sx={{ textAlign: "right" }}>
